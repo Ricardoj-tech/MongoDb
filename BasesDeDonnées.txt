@@ -1,0 +1,254 @@
+Pour connecter sur cluster 
+
+First console:mongod --dbpath=../data/db1
+
+Second console: 
+mongo mongodb+srv://username:password@sandbox244.4lfkb.mongodb.net/TP244_RJ(BD)
+
+Pour importer une base de données ainsi qu'une collection:
+mongoimport "mongodb+srv://username:password@sandbox244.4lfkb.mongodb.net/TP244_RJ" --collection=movies --drop tp244_movies.json
+
+Pour aller directement sur la BD :
+mongo mongodb+srv://username:password@sandbox244.4lfkb.mongodb.net/TP244_RJ(BD)
+
+Pour insérer un document : 
+db.users.insert({"_id":8928, "name":"Ricardo Jean", "gender":"M","age":"20","occupation":"TI"})
+
+Exemple regex:
+{relationships : {$elemMatch : {"person.first_name": "Mark" , title : {$regex : "CEO"}}}}
+
+Pour supprimer un document dans une base de données
+db.users.deleteOne({"_id":8928})     ----{"_id":8928} document supprimé 
+
+Changer programmer en developer 
+db.users.updateMany({"occupation":"programmer"},{$set:{"occupation":"developer"}})
+
+Affiche les films qui sortent en 1984  
+db.movies.find({"title":{$regex:/1984/}})
+
+Les dix femmes auteurs (writer) les plus âgées 
+db.users.find({gender:"F", occupation:"writer"},{"name":1,"gender":1,"_id":0,"age":1,"occuaption":1}).sort({age:-1}).limit(10)
+
+Pour faire un backup en BSON
+mongodump --uri "mongodb+srv://username:password@sandbox244.4lfkb.mongodb.net/TP244_RJ
+
+Pour faire un backup en JSON
+mongoexport --uri "mongodb+srv://username:password@sandbox244.4lfkb.mongodb.net/TP244_RJ" --collection=users --out=users2.json
+
+Pour créer un nouveau champ avec la fonction forEach
+db.users.find({}).forEach(function(note) { 
+var size=note.movies.length;
+note.num_ratings =size;  
+db.users.save(note); })
+
+db.users.find().forEach(function(u) {var t=Math.round(new Date("January 1, 2001 00:00:00").getTime()/1000); u ["date_ratings"]=ISODate(u["movies.timestamp"]); db.users2.save(u);}) 
+
+db.movies.find().forEach(function(doc) {
+var res =genres.split ("","|"}; 
+doc.genres=res;
+db.movies.save(doc); })
+
+db.movies.find().forEach(function(doc) { 
+ var  =doc.genres.split (["$doc.genres", " | ", " \n"]);
+ doc.genres=res; 
+db.movies.save(doc); })
+
+db.movies.find().forEach(function(doc) {
+var array= doc.genres.split(["$doc.genres","|"]); 
+doc.genres=array; 
+db.movies.save(doc); })
+
+
+db.users.find().forEach(function(u) {
+u.movies.forEach(function(item,index,array) { 
+var d=new Date(item.timestamp*1000);
+item.date_rating=d; 
+});
+ db.users.save(u);}) 
+
+
+Q.13 Quelles sont les dix femmes auteurs (writer) les plus âgées ? (utiliser sort() et limit().
+
+db.users.find({gender:"F",occupation:"writer"},{"name":1,"gender":1,"_id":0,"age":1,"occupation":1}).sort({age:-1}).limit(10)
+
+Q.14 Quelles sont toutes les occupations présentes dans la base de données ? (utiliser
+distinct()
+
+db.users.distinct("occupation")
+
+Q.15 Insérer un nouvel utilisateur dans la base de données avec votre propre nom ; ne pas
+inclure pour l’instant de champ movies, pour les autres champs choisissez n’import e
+quelles valeurs.
+
+db.users.inser({"_id":"8928", "name":"Ricardo Jean", "gender":"'M","age":"20","occupation":"TI"})
+
+Q.16 Affichez un film au hasard de la collection movies et utilisez son id pour mettre à jour
+votre utilisateur et ajouter le champ movies ; respecter le schéma en place en donnant
+une note (rating) et pour le champ « timestamp », utiliser l’heure courante
+(Math.round(new Date().getTime() / 1000)).
+
+db.movies.findOne()
+
+Q.17 Afficher votre utilisateur
+
+db.users.find({"_id":8928})
+
+Q.18 Supprimer votre utilisateur de la base de données.
+
+db.users.deleteOne({"_id":8928})
+
+Q.19 Pour tous les utilisateurs qui ont pour occupation "programmer", changer cette
+occupation en "developer".
+
+db.users.updateMany({occupation:"programmer"},{$set:{"occupation":developer}})
+
+Q.20 Afficher le nombre de « déveloper » obtenus.
+
+db.users.find({occupation:"developer"}).count()
+
+Q.21 Faite un backup de cette bd en choisissant la commande permettant d’obtenir un
+fichier lisible pour la modification.
+
+ mongoexport --uri "mongodb+srv://username:password@sandbox244.4lfkb.mongodb.net/TP244_RJ" --collection=users --out=users2.json
+
+Q.22 Combien de films sont sortis dans les années quatre-vingt ? (L’année de sortie est
+indiquée entre parenthèses à la fin du titre de chaque film)
+
+db.movies.find({"title":{$regex:/198/}}).count()
+
+Q.24 Combien y a-t-il de films d’horreur?
+
+db.movies.find({"genres":{$regex:/^Horror$/}}).count()
+
+Q.25
+
+Q.26 Combien d’utilisateurs ont noté le film qui a pour id 1196 (Star Wars: Episode V – The
+Empire Strikes Back (1980)) ?
+
+db.users.find({movies:{$elemMatch:{movieid:1196}}},{"movieid":1}).count()
+
+Q.27 Combien d’utilisateurs ont noté tous les films de la première trilogie Star Wars (id
+260,1196, 1210) ? Utiliser l’opérateur $all et $elemMatch.
+
+db.users.find({movies:{$all:[{"$elemMatch":{movieid:260}},{"$elemMatch":{movieid:1196}},{"$elemMatch":{movieid:1210}}]}}).count()
+
+Q.28 Combien d’utilisateurs ont notés exactement 48 films ? Utiliser l’opérateur $size.
+
+db.users.find({movies:{$size:48}}).count()
+
+Q.29 Pour chaque utilisateur, créer un champ num_ratings qui indique le nombre de films
+qu’il a notés. Utiliser un $forEach comme dans cet exemple. L’opération qui met à jour
+la collection Users peut prendre plusieurs minutes.
+
+db.users.find({}).forEach(function(note) { 
+var size=note.movies.length;
+note.num_ratings =size;  
+db.users.save(note); })
+
+Q.30 Combien d’utilisateurs ont noté plus de 90 films ?
+
+db.users.find({$expr:{$gt:[{$size:"$movies"},90]}}).count()
+
+Q.31 Combien de notes ont été soumises après le 1er janvier 2001 ? Il est plus facile de
+créer d’abord un champs date_ratings avec un $forEach en convertissant le champ
+timestamp. Utilisez la formule inverse de (Math.round(new Date().getTime() / 1000))
+
+db.users.find().forEach(function(u) {
+u.movies.forEach(function(item,index,array) {
+var d=new Date(item.timestamp*1000);
+item.date_rating=d;
+});
+db.users.save(u);})
+
+db.users.find({"movies.date_rating":{$gt:new ISODate('2001-01-01T00:00:00.000Z')}}).count()
+
+Q.32 Quels sont les trois derniers films notés par Jayson Brad ? Recréez le tableau en le
+triant par timestamp puis avec une seconde commande utilisez un $slice pour afficher
+chaque champ sur une lignehamp sur une ligne.
+
+db.users.find({name:"Jayson Brad"},{name:1, _id:0, movies:{$slice:3}}).sort({"movies.timestamp":1}).pretty()
+
+Q.33 Obtenez les informations portant uniquement sur Tracy Edward et sa note du film Star
+Wars: Episode VI Return of the Jedi, qui a pour id 1210. Utilisez l opérateur
+$elemMatch dans un e p rojection.
+
+db.users.find({name:"Tracy Edward"},{"name":1,"movies":1,"_id":0,movies:{$elemMatch:{movieid:1210}}}).pretty()
+Exemple: regex
+ db.movies.find({"genres":{$regex:/^Musical|Romance$/}})
+
+Q.34 Combien d’util isateurs ont donné au film "Untouchables, The" la note de 5. Avec une
+première commande , obtenez l identifiant du film et avec une seconde commande
+compter les utilisateurs qui ont noté ce film avec un 5 (vous dev riez obtenir un total de
+317)
+
+ db.users.find({movies:{"$elemMatch":{rating:5,movieid:2194}}}).count()
+
+Q.35 L’utilisateur Barry Erin vient juste de voir le film Nixon, qui a pour id 14 ; il lui attribue la
+note de 4. Mettre à jour la base de données pour prendre en compte cette note.
+N’oubliez pas que le champ num_rattings doit représenter le nombre de films notés par
+un utilisateur.
+
+db.users.update({name:"Barry Erin"},{"$set":{"num_ratings":342}})
+db.users.update({name:"Barry Erin"},{"$push":{"movies":{"movieid":14,"rating":4,
+"timestamp":(Math.round(new Date().getTime()/1000))}}})
+
+Q.36 L’utilisatrice Marquis Billie n’a en fait pas vu le film "Santa with Muscles", qui a pour id
+1311. Supprimer la note entrée par mégarde dans la base de données. Utiliser un
+$pull
+
+db.users.update({name:"Marquis Billie"},{"movies.movieid":1311},{$pull:{rating:1}})
+
+Q.37 Modifier la collection movies en replaçant pour chaque film la valeur du champ genres
+par un tableau de chaines de caractères. Utiliser un forEach et la fonction JavaScript
+split()
+
+db.movies.find().forEach(function(doc) { 
+var array= doc.genres.split(["$doc.genres","|"]);
+ doc.genres=array;  
+db.movies.save(doc); })
+
+Q.40  Chercher le nom des dix femmes qui ont noté un film le plus récemment. Notez que si
+l’on ajoute la fonction explain() à la fin de la requête, on obtient des statistiques sur son
+exécution.
+
+db.users.find({gender:"F","movies.timestamp":{$gt:0}},{_id:0,name:1,"movies.$":1}).sort({"movies.timestamp":-1}).limit(10)
+
+Q.41 Créer un index sur les champs gender et movies. timestamp (ou ratingDate si vous
+avez utilisé ce c hamp)
+
+db.users.createIndex({gender:1,"movies.timestamp":1})
+
+Q.42 Exécuter à nouveau la requête 40 et identifier les différences entre les statistiques
+d’exécution
+
+db.users.find({gender:"F","movies.timestamp":{$gt:0}},{_id:0,name:1,"movies.$":1}).sort({"movies.timestamp":-1}).limit(10)
+
+Q.43 Afficher combien de films a été produits par année, durant l es années 90 ; ordonner
+les résultats de sorte que l’ année la plus fructueuse soit affichée en premier Inspirez
+vous de la quest ion 23.
+
+db.movies.aggregate([{$match:{title:/199/}},{$project:{"year":{$substrCP:["$title",{$subtract:[{$strLenCP:"$title"},5]},4]}}}, {$group:{"_id":"$year","total":{$sum:1}}},{$sort:{"total":-1}}])
+
+Q.44 Affichez la note moyenne du film Pulp Fiction, qui a pour id 296 ? Pour la première
+étape , utilisez l opérateur $unwind pour transformer un tableau en docum ent . Vous
+serez ensu ite en mesure de calculer une moyenne globale à t ravers toute la colle c t ion.
+Voici le résultat attendu;
+
+db.users.aggregate([{$match:{"movies.movieid":296}},{$unwind: {path: "$movies"}},{$group:{_id: "$movies.movieid","moyenne Pulp Fiction": {$avg: "$movies.rating"}}},{$match: { _id:296}}])
+
+Q.45 En une seule requête, retourner pour chaque utilisateur son id, son nom, les notes
+maximale, minimale et moyenne qu’il a données . Or donne z le résultat par note
+moyenne croissante. U tiliser les opérateurs $min, $max et $avg à l étape de projection.
+
+db.users.aggregate([{$project:{"_id":1, "name":1,ratingMin:{$avg:"$movies.rating"},ratingMax:{$max:"$movies.rating"},ratingAvg:{$avg:"$movies.rating"} }},{$sort:{"ratingAvg":1}}])
+
+Q.46 Quel est le mois au cours duquel le plus de notes ont été attribuées? L opérat eur
+$month permet d obtenir le mois d une date.
+
+db.users.aggregate([{$unwind:{path: "$movies"}}, {$group: { "_id":{$month:"$movies.date_rating"},  "total":{"$sum":1}  }}, {$project: {"indice du moi":"$id","nombre de notes":"$total"}}, {$sort: {"nombre de notes":-1}},{$limit:1}])
+
+Exemple pour créer les dates de naissance 
+db.users.find({}).forEach(function(b){
+var today = new Date();
+b.birthYear=today.getYear()-b.age;
+db.users3.save(b); })
